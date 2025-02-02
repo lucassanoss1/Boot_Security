@@ -44,6 +44,9 @@
         <td th:text="${user.roles}"></td>>
         <td>
             <div class="button-container">
+                <form th:action="@{/admin/editUser/{id}(id=${user.id})}" method="get">
+                    <button type="submit" class="btn btn-primary">Edit</button>
+                </form>
                 <form th:action="@{delete/{id}(id=${user.id})}" method="post">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>

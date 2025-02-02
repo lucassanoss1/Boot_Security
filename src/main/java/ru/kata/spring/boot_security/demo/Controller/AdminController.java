@@ -1,6 +1,5 @@
 package ru.kata.spring.boot_security.demo.Controller;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +31,18 @@ public class AdminController {
     @PostMapping("delete/{id}")
     public String deleteById(@PathVariable("id") Long id) {
         userService.removeUserById(id);
+        return "redirect:/admin/allUsers";
+    }
+
+    @GetMapping("editUser/{id}")
+    public String editUserForm(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("user", userService.findUserById(id));
+        return "editUser";
+    }
+
+    @PostMapping("editUser")
+    public String editUser(User user) {
+        userService.updateUser(user);
         return "redirect:/admin/allUsers";
     }
 
