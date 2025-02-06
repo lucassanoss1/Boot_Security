@@ -9,6 +9,7 @@ import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void addUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.save(user);
     }
 
@@ -53,4 +55,9 @@ public class UserServiceImpl implements UserService {
         userDao.save(user);
     }
 
+    @Override
+    @Transactional
+    public Optional<User> findByUsername(String username) {
+        return userDao.findByUsername(username);
+    }
 }

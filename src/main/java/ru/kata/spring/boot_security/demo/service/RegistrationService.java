@@ -10,6 +10,7 @@ import ru.kata.spring.boot_security.demo.model.User;
 
 import java.util.HashSet;
 import java.util.Set;
+
 @Service
 public class RegistrationService {
     private final UserDao userDao;
@@ -33,7 +34,6 @@ public class RegistrationService {
             roles.add(role);
         }
         user.setRoles(roles);
-
         userDao.save(user);
     }
 

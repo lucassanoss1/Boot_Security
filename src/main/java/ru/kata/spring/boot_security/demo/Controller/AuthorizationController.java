@@ -12,10 +12,10 @@ import ru.kata.spring.boot_security.demo.service.RegistrationService;
 import java.util.Set;
 
 @Controller
-public class authorizationController {
+public class AuthorizationController {
     private final RegistrationService reg;
     @Autowired
-    public authorizationController(RegistrationService reg) {
+    public AuthorizationController(RegistrationService reg) {
         this.reg = reg;
     }
 

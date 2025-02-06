@@ -19,12 +19,15 @@ public class UserDetailService implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userDao.findByUsername(username);
         if (user.isEmpty()) {
             throw new UsernameNotFoundException(username);
         }
-        return new User(user.get().getUsername(), user.get().getPassword(),user.get().getRoles());
+
+        User userRole = user.get();
+        userRole.getRoles().size();
+        return new User(user.get().getUsername(), user.get().getPassword(), user.get().getRoles());
     }
 }
