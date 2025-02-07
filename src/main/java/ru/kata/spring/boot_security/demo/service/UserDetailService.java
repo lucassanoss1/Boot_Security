@@ -25,9 +25,8 @@ public class UserDetailService implements UserDetailsService {
         if (user.isEmpty()) {
             throw new UsernameNotFoundException(username);
         }
-
         User userRole = user.get();
         userRole.getRoles().size();
-        return new User(user.get().getUsername(), user.get().getPassword(), user.get().getRoles());
+        return user.get();
     }
 }
