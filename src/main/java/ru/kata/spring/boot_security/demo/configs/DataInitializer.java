@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setUsername("Admin");
             admin.setEmail("Admin@mail.ru");
             admin.setPassword("admin");
-            registrationService.register(admin, Set.of("ROLE_ADMIN"));
+            registrationService.register(admin.getUsername(), admin.getPassword(), admin.getEmail(), Set.of("ROLE_ADMIN"));
         }
 
         if (userService.findByUsername("User").isEmpty()) {
@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner {
             user.setUsername("User");
             user.setEmail("User@mail.ru");
             user.setPassword("user");
-            registrationService.register(user, Set.of("ROLE_USER"));
+            registrationService.register(user.getUsername(), user.getPassword(), user.getEmail(), Set.of("ROLE_USER"));
         }
     }
 }

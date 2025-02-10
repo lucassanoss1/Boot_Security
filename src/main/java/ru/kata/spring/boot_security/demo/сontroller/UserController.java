@@ -13,12 +13,14 @@ import ru.kata.spring.boot_security.demo.model.User;
 public class UserController {
 
     @GetMapping("/")
-    public String getUserInfo(@AuthenticationPrincipal User user, Model model) {
+    @ResponseBody
+    public User getUserInfo(@AuthenticationPrincipal User user, Model model) {
         User userForm = new User();
         userForm.setId(user.getId());
         userForm.setUsername(user.getUsername());
         userForm.setEmail(user.getEmail());
-        model.addAttribute("user", userForm);
-        return "one_user";
+        userForm.setRoles(user.getRoles());
+        model.addAttribute("authenticationUser", userForm);
+        return userForm;
     }
 }

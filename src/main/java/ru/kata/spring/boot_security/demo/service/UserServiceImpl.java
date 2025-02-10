@@ -31,8 +31,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void addUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public void addUser(String username, String password, String email, Set<String> roleNames) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
         userDao.save(user);
     }
 
@@ -56,8 +59,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(User user, Set<String> rolesNames) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public void updateUser(Long id, String username, String password, String email, Set<String> rolesNames) {
 
         Set<Role> rolesUser = new HashSet<>();
         for (String role : rolesNames) {
@@ -65,6 +67,10 @@ public class UserServiceImpl implements UserService {
                     new RuntimeException("Role '" + role + "' not found"));
             rolesUser.add(roles);
         }
+        User user = userDao.findById(id).orElseThrow();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
         user.setRoles(rolesUser);
         userDao.save(user);
     }

@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.сontroller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class AdminController {
     @GetMapping("allUsers")
     public String getAllUser(Model model) {
         model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("allRoles", Set.of("USER", "ADMIN"));
         return "allUsers";
     }
 
@@ -35,9 +37,9 @@ public class AdminController {
     }
 
     @GetMapping("editUser/{id}")
-    public String editUserForm(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("user", userService.findUserById(id));
-        return "editUser";
+    @ResponseBody
+    public User editUserForm(@PathVariable("id") Long id) {
+        return userService.findUserById(id);
     }
 
     @PostMapping("editUser")
@@ -46,11 +48,7 @@ public class AdminController {
                            @RequestParam String password,
                            @RequestParam String email,
                            @RequestParam Set<String> roles) {
-        User user = userService.findUserById(id);
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setEmail(email);
-        userService.updateUser(user, roles);
+        userService.updateUser(id, username, password, email, roles);
         return "redirect:/admin/allUsers";
     }
 
@@ -65,11 +63,7 @@ public class AdminController {
                           @RequestParam String password,
                           @RequestParam String email,
                           @RequestParam Set<String> roles) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setEmail(email);
-        registrationService.register(user, roles);
+        registrationService.register(username, password, email, roles);
         return "redirect:/admin/allUsers";
     }
 }

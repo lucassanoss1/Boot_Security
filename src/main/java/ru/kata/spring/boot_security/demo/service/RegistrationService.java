@@ -24,8 +24,7 @@ public class RegistrationService {
     }
 
     @Transactional
-    public void register(User user, Set<String> roleNames) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public void register(String username, String password, String email, Set<String> roleNames) {
 
         Set<Role> roles = new HashSet<>();
         for (String roleName : roleNames) {
@@ -33,6 +32,10 @@ public class RegistrationService {
                     new RuntimeException("Role '" + roleName + "' not found"));
             roles.add(role);
         }
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
         user.setRoles(roles);
         userDao.save(user);
     }

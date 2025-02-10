@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>User Info</title>
 </head>
 <body>
 <h1>User Info</h1>
-<p>ID: <span th:text="${user.id}"></span></p>
-<p>Username: <span th:text="${user.username}"></span></p>
-<p>Email: <span th:text="${user.email}"></span></p>
+<p><strong>ID:</strong> <span id="userDetailId" th:text="${authenticationUser.id}"></span></p>
+<p><strong>Username:</strong> <span id="userDetailUsername" th:text="${authenticationUser.username}"></span></p>
+<p><strong>Email:</strong> <span id="userDetailEmail" th:text="${authenticationUser.email}"></span></p>
+<p><strong>Roles:</strong> <span id="userDetailRoles" th:text="${authenticationUser.roles}"></span></p>
 </body>
 </html>

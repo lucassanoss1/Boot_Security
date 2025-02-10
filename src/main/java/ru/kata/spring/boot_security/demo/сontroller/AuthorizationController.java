@@ -35,11 +35,7 @@ public class AuthorizationController {
                                @RequestParam String password,
                                @RequestParam String email,
                                @RequestParam Set<String> roles) {
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setEmail(email);
-        reg.register(user, roles);
+        reg.register(username, password, email, roles);
         return "/login";
     }
 }
