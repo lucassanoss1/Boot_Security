@@ -1,4 +1,4 @@
-package ru.kata.spring.boot_security.demo.сontroller;
+package ru.kata.spring.boot_security.demo.controller;
 
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,7 +12,7 @@ import ru.kata.spring.boot_security.demo.model.User;
 @RequestMapping("/user")
 public class UserController {
 
-    @GetMapping("/")
+    @GetMapping("/json")
     @ResponseBody
     public User getUserInfo(@AuthenticationPrincipal User user, Model model) {
         User userForm = new User();
@@ -22,5 +22,10 @@ public class UserController {
         userForm.setRoles(user.getRoles());
         model.addAttribute("authenticationUser", userForm);
         return userForm;
+    }
+
+    @GetMapping("/")
+    public String getUserInfoPage() {
+        return "one_user";
     }
 }
