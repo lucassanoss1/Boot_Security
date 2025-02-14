@@ -23,21 +23,32 @@ public class RegistrationService {
         this.roleDao = roleDao;
     }
 
-    @Transactional
-    public void register(String username, String password, String email, Set<String> roleNames) {
+//    @Transactional
+//    public void register(String username, String password, String email, Set<String> roleNames) {
+//        Set<Role> roles = new HashSet<>();
+//        for (String roleName : roleNames) {
+//            Role role = roleDao.findByName(roleName).orElseThrow(() ->
+//                    new RuntimeException("Role '" + roleName + "' not found"));
+//            roles.add(role);
+//        }
+//        User user = new User();
+//        user.setUsername(username);
+//        user.setPassword(passwordEncoder.encode(password));
+//        user.setEmail(email);
+//        user.setRoles(roles);
+//        userDao.save(user);
+//    }
 
+    @Transactional
+    public User register(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         Set<Role> roles = new HashSet<>();
-        for (String roleName : roleNames) {
-            Role role = roleDao.findByName(roleName).orElseThrow(() ->
-                    new RuntimeException("Role '" + roleName + "' not found"));
-            roles.add(role);
+        for (Role role : user.getRoles()) {
+            Role dateRole = roleDao.findByName(role.getName()).orElseThrow();
+            roles.add(dateRole);
         }
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
         user.setRoles(roles);
         userDao.save(user);
+        return user;
     }
-
 }

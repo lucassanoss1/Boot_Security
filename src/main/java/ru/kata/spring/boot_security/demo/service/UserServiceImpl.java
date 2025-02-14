@@ -59,20 +59,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUser(Long id, String username, String password, String email, Set<String> rolesNames) {
-
+    public User updateUser(User user) {
+        User userEdit = userDao.findById(user.getId()).orElseThrow();
+        userEdit.setUsername(user.getUsername());
+        userEdit.setPassword(passwordEncoder.encode(user.getPassword()));
+        userEdit.setEmail(user.getEmail());
         Set<Role> rolesUser = new HashSet<>();
-        for (String role : rolesNames) {
-            Role roles = roleDao.findByName(role).orElseThrow(() ->
-                    new RuntimeException("Role '" + role + "' not found"));
-            rolesUser.add(roles);
+        for (Role role : user.getRoles()) {
+            Role existingRole = roleDao.findByName(role.getName()).orElseThrow(() ->
+                    new RuntimeException("Role '" + role.getName() + "' not found"));
+            rolesUser.add(existingRole);
         }
-        User user = userDao.findById(id).orElseThrow();
-        user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setEmail(email);
-        user.setRoles(rolesUser);
-        userDao.save(user);
+        userEdit.setRoles(rolesUser);
+        return userDao.save(userEdit);
     }
 
     @Override

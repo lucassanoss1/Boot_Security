@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -150,7 +150,7 @@
         <!-- Вкладка "Add User" -->
         <div id="addUser" class="tab-pane fade">
             <h2>Add New User</h2>
-            <form th:action="@{/admin/add}" method="post" novalidate>
+            <form id="addUserForm" novalidate>
                 <div class="form-group">
                     <label for="username">Username</label>
                     <input type="text" class="form-control" id="username" name="username" required>
@@ -205,7 +205,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form th:action="@{/admin/editUser}" method="post">
+                <form id="editUserForm">
                     <input type="hidden" name="id" id="editUserId">
                     <div class="form-group">
                         <label for="editUsername">Username</label>
@@ -222,13 +222,16 @@
                     <div class="form-group">
                         <label for="roles">Roles</label>
                         <label for="rolesEdit"></label><select class="form-control" id="rolesEdit" name="roles" multiple required>
-                            <option value="ROLE_USER">USER</option>
-                            <option value="ROLE_ADMIN">ADMIN</option>
-                        </select>
+                        <option value="ROLE_USER">USER</option>
+                        <option value="ROLE_ADMIN">ADMIN</option>
+                    </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <form method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </form>
                     </div>
                 </form>
             </div>
@@ -266,9 +269,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <form id="deleteForm" method="post">
+                <form id="deleteForm">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" class="btn btn-danger btn-delete">Delete</button>
                 </form>
             </div>
         </div>
@@ -278,45 +281,45 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
+<!-- загрузка таблицы -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function fetchAndUpdateUsers() {
         fetch('/admin/allUsers')
             .then(response => {
-                console.log('Ответ от сервера:', response);
                 if (!response.ok) {
                     throw new Error('Ошибка сети или сервера');
                 }
                 return response.json();
             })
             .then(users => {
-                console.log('Полученные пользователи:', users);
-
                 const tbody = document.querySelector('#userTableBody');
                 tbody.innerHTML = ''; // Очищаем таблицу перед добавлением новых данных
 
                 users.forEach(user => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                <td>${user.id}</td>
-                <td>${user.username}</td>
-                <td>${user.email}</td>
-                <td>${user.roles.map(role => role.name).join(', ')}</td>
-                <td>
-                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal" data-user-id="${user.id}">Edit</button>
-                </td>
-                <td>
-                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-user-id="${user.id}">Delete</button>
-                </td>
-            `;
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${user.roles.map(role => role.name).join(', ')}</td>
+                    <td>
+                        <button type="submit" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal" data-user-id="${user.id}">Edit</button>
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-user-id="${user.id}">Delete</button>
+                    </td>
+                `;
                     tbody.appendChild(row);
                 });
             })
             .catch(error => {
                 console.error('Ошибка при получении данных:', error);
             });
-    })
+    }
+    fetchAndUpdateUsers();
+    document.addEventListener('DOMContentLoaded', fetchAndUpdateUsers);
 </script>
+
 <script>
     document.getElementById('users-tab').addEventListener('click', function(event) {
         event.preventDefault();
@@ -399,6 +402,7 @@
             });
     });
 
+
     $('#deleteModal').on('show.bs.modal', function (event) {
         const button = $(event.relatedTarget);
         const userId = button.data('user-id');
@@ -413,7 +417,6 @@
                 const roles = new Set(user.roles);
                 const arrRole = Array.from(roles).map(role => role.name);
                 modal.find('#deleteRoles').val(arrRole.join(", "))
-                modal.find('#deleteForm').attr('action', `/admin/delete/${userId}`);
             });
     });
 
@@ -425,6 +428,112 @@
             const arrRole = Array.from(roles).map(role => role.name);
             document.getElementById('upRole').textContent = arrRole.join(", ");
         })
+</script>
+<!-- PUT для Edit -->
+<script>
+    document.getElementById('editUserForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Отменяем стандартное поведение формы
+
+        // Собираем данные из формы
+        const formData = {
+            id: document.getElementById('editUserId').value,
+            username: document.getElementById('editUsername').value,
+            password: document.getElementById('editPassword').value,
+            email: document.getElementById('editEmail').value,
+            roles: Array.from(document.getElementById('rolesEdit').selectedOptions)
+                .map(option => option.value) // Получаем выбранные роли
+        };
+
+        // Отправляем данные на сервер
+        fetch('/admin/editUser', {
+            method: 'PUT', // Используем PUT для обновления данных
+            headers: {
+                'Content-Type': 'application/json' // Указываем, что отправляем JSON
+            },
+            body: JSON.stringify(formData) // Преобразуем объект в JSON
+        }).then(() => {
+            console.log('Пользователь успешно удалён');
+            $('#editModal').modal('hide');
+            fetchAndUpdateUsers();
+        })
+    });
+</script>
+<!-- Скрипт удаления пользователя -->
+<script>
+    document.getElementById('deleteForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Получаем ID пользователя
+        const userId = document.getElementById('deleteUserId').value;
+        console.log('User ID:', userId);
+
+        if (!userId) {
+            console.error('User ID не найден');
+            return;
+        }
+        fetch(`/admin/delete/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(() => {
+                console.log('Пользователь успешно удалён');
+
+                // Закрываем модальное окно
+                $('#deleteModal').modal('hide');
+
+                // Обновляем таблицу с пользователями
+                fetchAndUpdateUsers();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                console.log('Не удалось удалить пользователя');
+            });
+    });
+</script>
+<!-- Скрипт добавления позователя -->
+<script>
+    document.getElementById('addUserForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Отменяем стандартное поведение формы
+        // Собираем данные из формы
+        const user = {
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            email: document.getElementById('email').value,
+            roles: Array.from(document.getElementById('roles').selectedOptions)
+                .map(option => option.value) // Получаем выбранные роли
+        };
+
+        addUser(user);
+    });
+</script>
+<!-- Функция добавления -->
+<script>
+    function addUser(user) {
+        fetch('/admin/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при добавлении пользователя');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Пользователь успешно добавлен:', data);
+                window.location.href = '/testNumberTwo.html';
+                fetchAndUpdateUsers();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                console.log('Не удалось добавить пользователя');
+            });
+    }
 </script>
 </body>
 </html>
