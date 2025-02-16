@@ -477,8 +477,6 @@
         })
             .then(() => {
                 console.log('Пользователь успешно удалён');
-
-                // Закрываем модальное окно
                 $('#deleteModal').modal('hide');
 
                 fetchAndUpdateUsers();
@@ -523,7 +521,7 @@
             })
             .then(data => {
                 console.log('Пользователь успешно добавлен:', data);
-                window.location.href = '/testNumberTwo.html';
+                window.location.href = '/adminPanel.html';
                 fetchAndUpdateUsers();
             })
             .catch(error => {
