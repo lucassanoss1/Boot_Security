@@ -221,7 +221,8 @@
                     </div>
                     <div class="form-group">
                         <label for="roles">Roles</label>
-                        <label for="rolesEdit"></label><select class="form-control" id="rolesEdit" name="roles" multiple required>
+                        <label for="rolesEdit"></label>
+                        <select class="form-control" id="rolesEdit" name="roles" multiple required>
                         <option value="ROLE_USER">USER</option>
                         <option value="ROLE_ADMIN">ADMIN</option>
                     </select>
@@ -434,7 +435,6 @@
     document.getElementById('editUserForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
-
         const formData = {
             id: document.getElementById('editUserId').value,
             username: document.getElementById('editUsername').value,
@@ -499,6 +499,7 @@
             roles: Array.from(document.getElementById('roles').selectedOptions)
                 .map(option => option.value)
         };
+        document.getElementById("addUser").style.display = 'none';
 
         addUser(user);
     });
@@ -521,7 +522,8 @@
             })
             .then(data => {
                 console.log('Пользователь успешно добавлен:', data);
-                window.location.href = '/adminPanel.html';
+                document.getElementById('addUser').style.display = 'none';
+                document.getElementById('users').style.display = 'block';
                 fetchAndUpdateUsers();
             })
             .catch(error => {
